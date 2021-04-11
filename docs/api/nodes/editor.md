@@ -118,6 +118,12 @@ Iterate through all of the nodes in the Editor.
 
 Options: `{at?: Location | Span, match?: NodeMatch, mode?: 'all' | 'highest' | 'lowest', universal?: boolean, reverse?: boolean, voids?: boolean}`
 
+`options.mode`:
+
+- `'all'` (default): all matching nodes
+- `'highest'`: in a hierarchy of nodes, only return the highest level matching nodes
+- `'lowest'`: in a hierarchy of nodes, only return the lowest level matching nodes
+
 #### `Editor.parent(editor: Editor, at: Location, options?): NodeEntry<Ancestor>`
 
 Get the parent node of a location.
