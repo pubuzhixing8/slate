@@ -62,7 +62,11 @@ Options supported: `NodeOptions & {height?: number, always?: boolean}`
 
 Wrap nodes at the specified location in the `element` container. If no location is specified, wrap the selection.
 
-Options supported: `NodeOptions & {split?: boolean}`. For `options.mode`, `'all'` is also supported.
+Options supported: `NodeOptions & {split?: boolean}`.
+
+For `options.mode`, `'all'` is also supported.
+
+The `options.split` option indicates that it's okay to split a node in order to wrap the location. For example, if `ipsum` was selected in a `Text` node with `lorem ipsum dolar`, `split: true` would wrap the word `ipsum` only, resulting in splitting the `Text` node. If `split: false`, the entire `Text` node `lorem ipsum dolar` would be wrapped.
 
 #### `Transforms.unwrapNodes(editor: Editor, options?)`
 
@@ -106,7 +110,7 @@ Options: `{edge?: 'anchor' | 'focus' | 'start' | 'end'}`
 
 #### `Transforms.select(editor: Editor, target: Location)`
 
-Set the selection to a new value specified by `target`.
+Set the selection to a new value specified by `target`. When a selection already exists, this method is just a proxy for `setSelection` and will update the existing value.
 
 #### `Transforms.deselect(editor: Editor)`
 
@@ -126,7 +130,7 @@ Options: `{edge?: 'anchor' | 'focus' | 'start' | 'end'}`
 
 #### `Transforms.setSelection(editor: Editor, props: Partial<Range>)`
 
-Set new properties on the selection.
+Set new properties on an active selection. Since the value is a `Partial<Range>`, this method can only handle updates to an existing selection. If there is no active selection the operation will be void. Use `select` if you'd like to create a selection when there is none.
 
 ### Text transforms
 

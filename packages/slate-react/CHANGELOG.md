@@ -1,5 +1,23 @@
 # slate-react
 
+## 0.64.0
+
+### Minor Changes
+
+- [#4257](https://github.com/ianstormtaylor/slate/pull/4257) [`4f0d1120`](https://github.com/ianstormtaylor/slate/commit/4f0d1120d46d1024d94e3c2742026f6c54357e1f) Thanks [@clauderic](https://github.com/clauderic)! - Added support for Android devices using a `MutationObserver` based reconciliation layer.
+
+  Bugs should be expected; translating mutations into a set of operations that need to be reconciled onto the Slate model is not an absolute science, and requires a lot of guesswork and handling of edge cases. There are still edge cases that aren't being handled.
+
+  This reconciliation layer aims to support Android 10 and 11. Earlier versions of Android work to a certain extent, but have more bugs and edge cases that currently aren't well supported.
+
+## 0.63.0
+
+### Patch Changes
+
+- [#4238](https://github.com/ianstormtaylor/slate/pull/4238) [`c14e1fbc`](https://github.com/ianstormtaylor/slate/commit/c14e1fbc77c51f7928ba8ab089c76f3e3438fb97) Thanks [@clauderic](https://github.com/clauderic)! - Fix duplicated content and other bugs related to drag and drop handling
+
+* [#4237](https://github.com/ianstormtaylor/slate/pull/4237) [`623960a7`](https://github.com/ianstormtaylor/slate/commit/623960a7d14103b8cebe667019b4de5f8ad1fd61) Thanks [@dylans](https://github.com/dylans)! - Fixed text insertion logic to prevent crashing in newer Firefox versions.
+
 ## 0.62.1
 
 ### Patch Changes
