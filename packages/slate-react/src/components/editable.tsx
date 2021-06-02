@@ -10,7 +10,6 @@ import {
   Path,
 } from 'slate'
 import getDirection from 'direction'
-import { HistoryEditor } from 'slate-history'
 import throttle from 'lodash/throttle'
 import scrollIntoView from 'scroll-into-view-if-needed'
 
@@ -18,6 +17,7 @@ import useChildren from '../hooks/use-children'
 import Hotkeys from '../utils/hotkeys'
 import {
   HAS_BEFORE_INPUT_SUPPORT,
+  IS_CHROME,
   IS_FIREFOX,
   IS_FIREFOX_LEGACY,
   IS_SAFARI,
@@ -507,10 +507,10 @@ export const Editable = (props: EditableProps) => {
           // have to use hacks to make these replacement-based features work.
           spellCheck={!HAS_BEFORE_INPUT_SUPPORT ? false : attributes.spellCheck}
           autoCorrect={
-            !HAS_BEFORE_INPUT_SUPPORT ? false : attributes.autoCorrect
+            !HAS_BEFORE_INPUT_SUPPORT ? 'false' : attributes.autoCorrect
           }
           autoCapitalize={
-            !HAS_BEFORE_INPUT_SUPPORT ? false : attributes.autoCapitalize
+            !HAS_BEFORE_INPUT_SUPPORT ? 'false' : attributes.autoCapitalize
           }
           data-slate-editor
           data-slate-node="value"
@@ -864,9 +864,10 @@ export const Editable = (props: EditableProps) => {
                 // hotkeys ourselves. (2019/11/06)
                 if (Hotkeys.isRedo(nativeEvent)) {
                   event.preventDefault()
+                  const maybeHistoryEditor: any = editor
 
-                  if (HistoryEditor.isHistoryEditor(editor)) {
-                    editor.redo()
+                  if (typeof maybeHistoryEditor.redo === 'function') {
+                    maybeHistoryEditor.redo()
                   }
 
                   return
@@ -874,9 +875,10 @@ export const Editable = (props: EditableProps) => {
 
                 if (Hotkeys.isUndo(nativeEvent)) {
                   event.preventDefault()
+                  const maybeHistoryEditor: any = editor
 
-                  if (HistoryEditor.isHistoryEditor(editor)) {
-                    editor.undo()
+                  if (typeof maybeHistoryEditor.undo === 'function') {
+                    maybeHistoryEditor.undo()
                   }
 
                   return
@@ -1057,6 +1059,33 @@ export const Editable = (props: EditableProps) => {
 
                     return
                   }
+                } else {
+                  if (IS_CHROME) {
+                    // COMPAT: Chrome supports `beforeinput` event but does not fire
+                    // an event when deleting backwards in a selected void inline node
+                    if (
+                      selection &&
+                      (Hotkeys.isDeleteBackward(nativeEvent) ||
+                        Hotkeys.isDeleteForward(nativeEvent)) &&
+                      Range.isCollapsed(selection)
+                    ) {
+                      const currentNode = Node.parent(
+                        editor,
+                        selection.anchor.path
+                      )
+
+                      if (
+                        Element.isElement(currentNode) &&
+                        Editor.isVoid(editor, currentNode) &&
+                        Editor.isInline(editor, currentNode)
+                      ) {
+                        event.preventDefault()
+                        Transforms.delete(editor, { unit: 'block' })
+
+                        return
+                      }
+                    }
+                  }
                 }
               }
             },
@@ -1191,13 +1220,19 @@ export const isEventHandled = <
   EventType extends React.SyntheticEvent<unknown, unknown>
 >(
   event: EventType,
-  handler?: (event: EventType) => void
+  handler?: (event: EventType) => void | boolean
 ) => {
   if (!handler) {
     return false
   }
+  // The custom event handler may return a boolean to specify whether the event
+  // shall be treated as being handled or not.
+  const shouldTreatEventAsHandled = handler(event)
 
-  handler(event)
+  if (shouldTreatEventAsHandled != null) {
+    return shouldTreatEventAsHandled
+  }
+
   return event.isDefaultPrevented() || event.isPropagationStopped()
 }
 
@@ -1207,12 +1242,19 @@ export const isEventHandled = <
 
 export const isDOMEventHandled = <E extends Event>(
   event: E,
-  handler?: (event: E) => void
+  handler?: (event: E) => void | boolean
 ) => {
   if (!handler) {
     return false
   }
 
-  handler(event)
+  // The custom event handler may return a boolean to specify whether the event
+  // shall be treated as being handled or not.
+  const shouldTreatEventAsHandled = handler(event)
+
+  if (shouldTreatEventAsHandled != null) {
+    return shouldTreatEventAsHandled
+  }
+
   return event.defaultPrevented
 }
