@@ -560,8 +560,6 @@ export const Editable = (props: EditableProps) => {
                 return
               }
 
-              const window = ReactEditor.getWindow(editor)
-
               // COMPAT: If the current `activeElement` is still the previous
               // one, this is due to the window being blurred when the tab
               // itself becomes unfocused, so we want to abort early to allow to
@@ -603,6 +601,14 @@ export const Editable = (props: EditableProps) => {
                 if (Element.isElement(node) && !editor.isVoid(node)) {
                   return
                 }
+              }
+
+              // COMPAT: Safari doesn't always remove the selection even if the content-
+              // editable element no longer has focus. Refer to:
+              // https://stackoverflow.com/questions/12353247/force-contenteditable-div-to-stop-accepting-input-after-it-loses-focus-under-web
+              if (IS_SAFARI) {
+                const domSelection = root.getSelection()
+                domSelection?.removeAllRanges()
               }
 
               IS_FOCUSED.delete(editor)
@@ -1060,8 +1066,8 @@ export const Editable = (props: EditableProps) => {
                     return
                   }
                 } else {
-                  if (IS_CHROME) {
-                    // COMPAT: Chrome supports `beforeinput` event but does not fire
+                  if (IS_CHROME || IS_SAFARI) {
+                    // COMPAT: Chrome and Safari support `beforeinput` event but do not fire
                     // an event when deleting backwards in a selected void inline node
                     if (
                       selection &&
