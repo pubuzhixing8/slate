@@ -1,5 +1,11 @@
 # slate-react
 
+## 0.65.3
+
+### Patch Changes
+
+- [#3698](https://github.com/ianstormtaylor/slate/pull/3698) [`5e7a9a42`](https://github.com/ianstormtaylor/slate/commit/5e7a9a42860f3f98e54057ae6377845d53ac6099) Thanks [@pubuzhixing8](https://github.com/pubuzhixing8)! - Fixed selection updating with IME inputs in browsers that support `beforeinput`.
+
 ## 0.65.2
 
 ### Patch Changes
